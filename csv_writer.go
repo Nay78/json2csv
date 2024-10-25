@@ -79,6 +79,30 @@ func (w *CSVWriter) writeCSV(results []KeyValue) error {
 	return nil
 }
 
+// WriteCSV writes CSV data (skips header).
+func (w *CSVWriter) writeCSVValues(results []KeyValue) error {
+	pts, err := allPointers(results)
+	if err != nil {
+		return err
+	}
+	sort.Sort(pts)
+	keys := pts.Strings()
+
+	for _, result := range results {
+		record := toRecord(result, keys)
+		if err := w.Write(record); err != nil {
+			return err
+		}
+	}
+
+	w.Flush()
+	if err := w.Error(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // WriteCSV writes CSV data which is transposed rows and columns.
 func (w *CSVWriter) writeTransposedCSV(results []KeyValue) error {
 	pts, err := allPointers(results)
